@@ -1,1 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Bill of Quantities</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- PDF Generation Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
 
+    <header>
+        <h1>Interactive Bill of Quantities</h1>
+        <h2 id="project-name">Project: Riverlands - RL2B</h2>
+    </header>
+
+    <!-- Navigation Bar - will be populated by script.js -->
+    <nav class="main-nav" id="main-nav">
+        <!-- Links will be inserted here -->
+    </nav>
+
+    <main>
+        <div id="summary-card">
+            <h3>Project Budget Summary</h3>
+            <div class="summary-item">
+                <span>Sub-Total</span>
+                <span id="summary-subtotal">R0.00</span>
+            </div>
+            <div class="summary-item">
+                <span>VAT @ 15%</span>
+                <span id="summary-vat">R0.00</span>
+            </div>
+            <hr>
+            <div class="summary-item total">
+                <span>Grand Total</span>
+                <span id="summary-grandtotal">R0.00</span>
+            </div>
+            <!-- Export Button -->
+            <button id="export-pdf" class="export-button">Save as PDF</button>
+            <div id="pdf-loader" style="display: none;">Generating PDF...</div>
+        </div>
+
+        <div id="boq-container">
+            <!-- BoQ tables will be dynamically inserted here -->
+            <div class="loader">Loading BoQ Data...</div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>```
+
+---
+
+### Step 2: Update `style.css`
+
+Now we'll add styles for the new navigation bar to make it "sticky" at the top of the screen, and we'll style the new PDF button.
+
+**Replace the entire contents of your `style.css` file with this updated code:**
+
+```css
+:root {
+    --primary-color: #005a9e;
+    --secondary-color: #f0f8ff;
+    --border-color: #d1d1d1;
+    --text-color: #333;
+    --header-bg: #ffffff;
+    --shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #f4f7f6;
+    color: var(--text-color);
+    margin: 0;
+}
+
+header {
+    padding: 20px;
+    text-align: center;
+    color: var(--primary-color);
+    background-color: var(--header-bg);
+}
+
+/* --- New Navigation Bar Styles --- */
+.main-nav {
+    position: sticky;
+    top: 0;
+    background-color: var(--primary-color);
+    z-index: 1000;
+    padding: 0 20px;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.main-nav a {
+    color: white;
+    padding: 15px 20px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 0.3s;
+}
+
+.main-nav a:hover {
+    background-color: #004a80;
+}
+/* --- End New Styles --- */
+
+main {
+    max-width: 1400px;
+    margin: auto;
+    padding: 20px;
+}
+
+#summary-card {
+    background-color: var(--header-bg);
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 2rem;
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    font-size: 1.1rem;
+}
+
+.summary-item.total {
+    font-weight: bold;
+    font-size: 1.4rem;
+    color: var(--primary-color);
+}
+
+hr {
+    border: none;
+    border-top: 1px solid var(--border-color);
+    margin: 1rem 0;
+}
+
+/* --- New Button and Loader Styles --- */
+.export-button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 1rem;
+    width: 100%;
+}
+
+.export-button:hover {
+    background-color: #218838;
+}
+
+#pdf-loader {
+    margin-top: 1rem;
+    color: var(--primary-color);
+    text-align: center;
+    font-weight: bold;
+}
+/* --- End New Styles --- */
+
+
+.boq-category {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    margin-bottom: 2rem;
+    overflow: hidden;
+    /* For anchor link scrolling */
+    scroll-margin-top: 80px; 
+}
+
+.boq-category h2 {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 1rem 1.5rem;
+    margin: 0;
+    font-size: 1.4rem;
+}
+
+.boq-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.boq-table th, .boq-table td {
+    padding: 0.8rem 1.5rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.boq-table thead {
+    background-color: var(--secondary-color);
+}
+
+.boq-table th {
+    font-weight: 600;
+}
+
+.boq-table tr:last-child td {
+    border-bottom: none;
+}
+
+.boq-table .quantity-input {
+    width: 80px;
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    text-align: center;
+    font-size: 1rem;
+}
+
+.quantity-text {
+    display: none; /* Hidden by default, shown for PDF export */
+}
+
+/* Column alignment and width */
+.col-item, .col-desc { text-align: left; }
+.col-units, .col-quantity { text-align: center; width: 5%; }
+.col-rate, .col-total { text-align: right; width: 12%; }
+.col-desc { width: 44%; }
+
+
+.loader {
+    text-align: center;
+    padding: 2rem;
+    font-size: 1.2rem;
+    color: #888;
+}
