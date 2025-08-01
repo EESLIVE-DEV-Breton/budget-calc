@@ -1,0 +1,11 @@
+Item,Description,Part Number,Units,Quantity,Supply Rate,Install Rate,Total
+4000,Active Switching,,,,,,
+4010,OLT - 8 port,,Qty,0,"R34,800.00",R625.00,R0.00
+4020,24 Port Network Switch with POE,,Qty,0,"R6,000.00",R250.00,R0.00
+4030,GPON OLT SFP Module,,Qty,0,"R1,800.00",R25.00,R0.00
+4040,10G SFP+ Single Mode 1310nm 10km LC,,Qty,0,"R2,160.00",R25.00,R0.00
+4050,LC/APC - SC/APC 1m Patch Lead,,Qty,0,R120.00,R27.50,R0.00
+4060,Layer 3 - 24 Port Switch,,Qty,0,"R9,120.00",R250.00,R0.00
+4070,Router - 9 port Gigabit with 2SFP+,,Qty,0,"R15,480.00",R750.00,R0.00
+,,,,,,,
+,,,,,,,R0.00

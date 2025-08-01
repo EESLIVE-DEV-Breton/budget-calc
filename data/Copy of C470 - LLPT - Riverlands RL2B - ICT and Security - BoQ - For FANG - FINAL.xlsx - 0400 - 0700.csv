@@ -1,0 +1,14 @@
+Item,Description,Units,Quantity,Supply Rate,Install Rate,Total
+0400,Quality Systems,,,,,
+0401,Quality Systems,Sum,0,"R31,250.00",R0.00,R0.00
+0500,Testing & Commissioning,,,,,
+0501,Testing & Commissioning,Sum,0,"R85,250.00",R0.00,R0.00
+0600,12 Month Guarantee and Maintenance,,,,,
+0601,Monthly Costs,Sum,0,R0.00,R0.00,R0.00
+0602,Fixed Costs,Sum,0,R0.00,R0.00,R0.00
+0700,Training & Handover Documentation,,,,,
+0701,Training,Sum,0,"R41,625.00",R0.00,R0.00
+0702,As-Built Documentation,Sum,0,"R6,875.00",R0.00,R0.00
+0703,Operation & Maintenance Manuals,Sum,0,"R4,375.00",R0.00,R0.00
+,,,,,,
+,Sub Total (carried forward to summary),,,,,R0.00
