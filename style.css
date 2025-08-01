@@ -1,1 +1,274 @@
+:root {
+    --primary-color: #005a9e;
+    --secondary-color: #f0f8ff;
+    --border-color: #d1d1d1;
+    --text-color: #333;
+    --header-bg: #ffffff;
+    --shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
 
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #f4f7f6;
+    color: var(--text-color);
+    margin: 0;
+    padding: 20px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: var(--primary-color);
+}
+
+main {
+    max-width: 1400px;
+    margin: auto;
+}
+
+#summary-card {
+    background-color: var(--header-bg);
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 2rem;
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    font-size: 1.1rem;
+}
+
+.summary-item.total {
+    font-weight: bold;
+    font-size: 1.4rem;
+    color: var(--primary-color);
+}
+
+hr {
+    border: none;
+    border-top: 1px solid var(--border-color);
+    margin: 1rem 0;
+}
+
+.boq-category {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    margin-bottom: 2rem;
+    overflow: hidden; /* Ensures the child elements conform to the border radius */
+}
+
+.boq-category h2 {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 1rem 1.5rem;
+    margin: 0;
+    font-size: 1.4rem;
+}
+
+.boq-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.boq-table th, .boq-table td {
+    padding: 0.8rem 1.5rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.boq-table thead {
+    background-color: var(--secondary-color);
+}
+
+.boq-table th {
+    font-weight: 600;
+}
+
+.boq-table tr:last-child td {
+    border-bottom: none;
+}
+
+.boq-table .quantity-input {
+    width: 80px;
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    text-align: center;
+    font-size: 1rem;
+}
+
+/* Column alignment and width */
+.col-item, .col-desc { text-align: left; }
+.col-units, .col-quantity { text-align: center; width: 5%; }
+.col-rate, .col-total { text-align: right; width: 12%; }
+.col-desc { width: 44%; }
+
+
+.loader {
+    text-align: center;
+    padding: 2rem;
+    font-size: 1.2rem;
+    color: #888;
+}```
+
+### Step 3: Add the JavaScript Logic to `script.js`
+
+This file is the "brain" of your application. It reads the CSV data, builds the interactive tables, and calculates the totals.
+
+1.  Open the `script.js` file.
+2.  Copy the code below and paste it into your `script.js` file.
+3.  Save the file or commit the changes on GitHub.
+
+```javascript
+document.addEventListener("DOMContentLoaded", () => {
+    // List of BoQ files to load from the 'data' folder
+    const boqFiles = [
+        '0100.csv',
+        '0400 - 0700.csv',
+        '1000.csv',
+        '2000.csv',
+        '3000.csv',
+        '4000.csv',
+        '5000.csv',
+        '7000.csv',
+        '8000.csv',
+        '9000.csv',
+        '11000.csv',
+        '14000.csv'
+    ];
+
+    const boqContainer = document.getElementById('boq-container');
+
+    // Function to parse currency string (e.g., "R2,125.00") into a number
+    const parseCurrency = (value) => {
+        if (typeof value !== 'string') return 0;
+        return parseFloat(value.replace(/R/g, '').replace(/,/g, '')) || 0;
+    };
+
+    // Function to format a number into currency string
+    const formatCurrency = (value) => {
+        return `R${value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}`;
+    };
+
+    // Function to calculate and update all totals
+    const updateTotals = () => {
+        let subTotal = 0;
+        const allRows = document.querySelectorAll('.boq-item-row');
+
+        allRows.forEach(row => {
+            const quantityInput = row.querySelector('.quantity-input');
+            const quantity = parseFloat(quantityInput.value) || 0;
+            
+            const supplyRate = parseFloat(row.dataset.supplyRate) || 0;
+            const installRate = parseFloat(row.dataset.installRate) || 0;
+
+            const rowTotal = quantity * (supplyRate + installRate);
+            row.querySelector('.col-total').textContent = formatCurrency(rowTotal);
+            subTotal += rowTotal;
+        });
+        
+        const vat = subTotal * 0.15;
+        const grandTotal = subTotal + vat;
+
+        document.getElementById('summary-subtotal').textContent = formatCurrency(subTotal);
+        document.getElementById('summary-vat').textContent = formatCurrency(vat);
+        document.getElementById('summary-grandtotal').textContent = formatCurrency(grandTotal);
+    };
+
+    // Function to create a table for a BoQ category
+    const createTable = (title, headers, data) => {
+        const categoryDiv = document.createElement('div');
+        categoryDiv.className = 'boq-category';
+
+        const categoryTitle = document.createElement('h2');
+        categoryTitle.textContent = title;
+        categoryDiv.appendChild(categoryTitle);
+
+        const table = document.createElement('table');
+        table.className = 'boq-table';
+
+        const thead = table.createTHead();
+        const headerRow = thead.insertRow();
+        headers.forEach(headerText => {
+            const th = document.createElement('th');
+            th.textContent = headerText;
+            th.className = `col-${headerText.toLowerCase().replace(/ /g, '-')}`;
+            headerRow.appendChild(th);
+        });
+
+        const tbody = table.createTBody();
+        data.forEach(item => {
+            const row = tbody.insertRow();
+            row.className = 'boq-item-row';
+            
+            // Store rates in data attributes for easy access
+            row.dataset.supplyRate = parseCurrency(item['Supply Rate']);
+            row.dataset.installRate = parseCurrency(item['Install Rate']);
+
+            row.innerHTML = `
+                <td class="col-item">${item.Item}</td>
+                <td class="col-desc">${item.Description}</td>
+                <td class="col-units">${item.Units}</td>
+                <td class="col-rate">${item['Supply Rate'] || 'N/A'}</td>
+                <td class="col-rate">${item['Install Rate'] || 'N/A'}</td>
+                <td class="col-quantity">
+                    <input type="number" class="quantity-input" value="${item.Quantity || 0}" min="0">
+                </td>
+                <td class="col-total">${formatCurrency(0)}</td>
+            `;
+            const input = row.querySelector('.quantity-input');
+            input.addEventListener('input', updateTotals);
+        });
+
+        categoryDiv.appendChild(table);
+        boqContainer.appendChild(categoryDiv);
+    };
+
+    // Main function to load and process all CSV files
+    const loadAllData = async () => {
+        const promises = boqFiles.map(file => fetch(`data/${file}`).then(response => response.text()));
+
+        try {
+            const allCsvData = await Promise.all(promises);
+            boqContainer.innerHTML = ''; // Clear loader
+
+            allCsvData.forEach((csv, index) => {
+                // Simple CSV parser
+                const lines = csv.trim().split('\n').slice(5); // Skip header lines
+                if (lines.length < 2) return; // Skip empty or header-only files
+                
+                let headers = lines[0].split(',').map(h => h.trim());
+                if (headers.length < 7) headers = ["Item", "Description", "Units", "Quantity", "Supply Rate", "Install Rate", "Total"]; // Fallback headers
+                
+                const categoryTitle = lines.find(line => line.startsWith(boqFiles[index].split('.')[0].substring(0,4)))?.split(',')[1] || `Category ${boqFiles[index]}`;
+                const data = lines.slice(1)
+                    .map(line => {
+                        const values = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/); // Split by comma, respecting quotes
+                        if (values.length < 2 || !values[0] || values.every(v => !v.trim())) return null; // Skip empty rows
+                        const rowData = {};
+                        headers.forEach((header, i) => {
+                            rowData[header] = values[i] ? values[i].replace(/"/g, '').trim() : '';
+                        });
+                        return rowData;
+                    })
+                    .filter(Boolean); // Filter out null (empty) rows
+
+                if (data.length > 0) {
+                     // Define the headers we want to display in our table
+                    const displayHeaders = ['Item', 'Description', 'Units', 'Supply Rate', 'Install Rate', 'Quantity', 'Total'];
+                    createTable(categoryTitle, displayHeaders, data);
+                }
+            });
+            updateTotals(); // Perform initial calculation
+        } catch (error) {
+            boqContainer.innerHTML = `<div class="loader">Error loading BoQ data. Please check the file paths and format. Details: ${error.message}</div>`;
+            console.error("Failed to load or process BoQ data:", error);
+        }
+    };
+
+    loadAllData();
+});
